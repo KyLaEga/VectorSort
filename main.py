@@ -1,7 +1,7 @@
 import sys
 import os
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, QCoreApplication
 from gui.main_window import MainWindow
 from gui.theme import ThemeManager
 from gui.translations import Translator
@@ -10,9 +10,12 @@ def main():
     if hasattr(sys, 'frozen'):
         os.environ['QT_ENABLE_HIGHDPI_SCALING'] = '1'
         
+    QCoreApplication.setOrganizationName("KyLaEga")
+    QCoreApplication.setApplicationName("VectorSort")
+    
     app = QApplication(sys.argv)
     
-    settings = QSettings("MyCompany", "NSFWFilter")
+    settings = QSettings()
     
     # Загружаем язык
     lang = settings.value("language", "ru")

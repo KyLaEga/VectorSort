@@ -43,23 +43,23 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller nsfw_filter.spec
+        pyinstaller vectorsort.spec
 
     - name: Archive Build (Windows/Linux)
       if: runner.os != 'macOS'
       run: |
         cd dist
-        zip -r NSFWFilter-${{ matrix.os }}.zip NSFWFilter
+        zip -r VectorSort-${{ matrix.os }}.zip VectorSort
 
     - name: Archive Build (macOS)
       if: runner.os == 'macOS'
       run: |
         cd dist
-        zip -r NSFWFilter-macOS.zip NSFWFilter.app
+        zip -r VectorSort-macOS.zip VectorSort.app
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/NSFWFilter-*.zip
+        files: dist/VectorSort-*.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

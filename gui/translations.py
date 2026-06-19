@@ -3,7 +3,7 @@ class Translator:
 
     _STRINGS = {
         "en": {
-            "app_title": "Multimodal NSFW Filter",
+            "app_title": "VectorSort",
             "dropzone_title": "Drag & Drop media folder here",
             "dropzone_sub": "or browse manually",
             "btn_browse": "Browse Folder",
@@ -52,9 +52,9 @@ class Translator:
             "status_reason_tensor_fail": "Tensorize Fail"
         },
         "ru": {
-            "app_title": "Multimodal NSFW Filter",
-            "dropzone_title": "Перетащите папку с медиафайлами сюда",
-            "dropzone_sub": "или выберите вручную",
+            "app_title": "VectorSort",
+            "dropzone_title": "Перетащите папку сюда",
+            "dropzone_sub": "или выберите ее вручную",
             "btn_browse": "Выбрать папку",
             "loading_title": "Инициализация нейросетей...",
             "loading_sub": "Это может занять несколько секунд",

@@ -84,7 +84,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(900, 700)
         
         self.engine = None
-        self.settings = QSettings("MyCompany", "NSFWFilter")
+        self.settings = QSettings()
         
         # Основной виджет
         main_widget = QWidget()
@@ -208,9 +208,9 @@ class MainWindow(QMainWindow):
                     QMessageBox.information(self, tr("msg_setup_done_title"), tr("msg_setup_done_text"))
                 else:
                     QMessageBox.warning(self, tr("msg_warning"), tr("msg_no_base_warning"))
-                    saved_base = os.path.expanduser("~/NSFW_Arbitrage")
+                    saved_base = os.path.expanduser("~/VectorSort")
             else:
-                saved_base = os.path.expanduser("~/NSFW_Arbitrage")
+                saved_base = os.path.expanduser("~/VectorSort")
                 
         base_dir = saved_base
         
