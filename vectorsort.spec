@@ -7,11 +7,10 @@ block_cipher = None
 
 # Collect hidden imports for all ML libs
 hidden_imports = []
-hidden_imports += collect_submodules('transformers')
-hidden_imports += collect_submodules('torch')
-hidden_imports += collect_submodules('torchaudio')
-hidden_imports += collect_submodules('imageio_ffmpeg')
+hidden_imports += ['transformers.models.siglip', 'transformers.models.ast']
 hidden_imports += ['PIL._tkinter_finder', 'faiss', 'librosa', 'soundfile']
+
+excludes = ['PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets', 'PySide6.QtNetwork', 'PySide6.QtQml', 'PySide6.QtSql', 'matplotlib', 'notebook', 'IPython', 'pytest', 'tkinter', 'unittest']
 
 # Collect data files
 datas = []
@@ -30,7 +29,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=excludes,
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
