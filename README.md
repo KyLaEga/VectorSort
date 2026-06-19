@@ -12,7 +12,7 @@
 
 ## 🚀 Features
 
-- **Offline by Default:** All AI models are pre-downloaded and bundled. No internet connection is required to scan files.
+- **Hybrid AI Loading:** AI models are downloaded automatically on first run directly within the app.
 - **Multimodal AI:** Analyzes both the visual frames (using Google's `SigLIP`) and the audio tracks (using MIT's `AST`).
 - **O(1) Vector Search:** Uses `faiss-cpu` to match thousands of files against your Reference/Trash matrices in milliseconds.
 - **Native FFmpeg:** Comes with `imageio-ffmpeg` built-in. No need to install `ffmpeg` on your system.
@@ -37,10 +37,7 @@ If you want to build the standalone executable yourself:
 pip install -r requirements.txt
 pip install pyinstaller
 
-# 2. Download offline AI models (SigLIP and AST)
-python scripts/download_models.py
-
-# 3. Build the application using PyInstaller
+# 2. Build the application using PyInstaller
 pyinstaller vectorsort.spec
 ```
 The compiled application will be located in the `dist/` directory.

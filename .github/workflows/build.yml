@@ -37,10 +37,6 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Download Offline Models
-      run: |
-        python scripts/download_models.py
-
     - name: Build with PyInstaller
       run: |
         pyinstaller vectorsort.spec
