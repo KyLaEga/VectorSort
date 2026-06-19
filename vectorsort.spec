@@ -10,7 +10,7 @@ hidden_imports = []
 hidden_imports += ['transformers.models.siglip', 'transformers.models.ast']
 hidden_imports += ['PIL._tkinter_finder', 'faiss', 'librosa', 'soundfile']
 
-excludes = ['PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets', 'PySide6.QtNetwork', 'PySide6.QtQml', 'PySide6.QtSql', 'matplotlib', 'notebook', 'IPython', 'pytest', 'tkinter']
+excludes = ['PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets', 'PySide6.QtNetwork', 'PySide6.QtQml', 'PySide6.QtSql', 'matplotlib', 'notebook', 'IPython', 'pytest', 'tkinter', 'scipy']
 
 # Collect data files
 datas = []

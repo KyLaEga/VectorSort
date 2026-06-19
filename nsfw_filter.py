@@ -11,7 +11,7 @@ sys.stdout.reconfigure(line_buffering=True)
 import shutil
 import subprocess
 import tempfile
-import imagehash
+from core.hash_utils import hex_to_hash, phash
 import uuid
 import numpy as np
 import faiss
@@ -78,7 +78,7 @@ class MultimodalEngine:
             self.hash_db = np.load(HASH_DB_PATH, allow_pickle=True).item()
             for h_list in self.hash_db.values():
                 if h_list and len(h_list) > 0:
-                    self.precomputed_hashes.append(imagehash.hex_to_hash(h_list[0]))
+                    self.precomputed_hashes.append(hex_to_hash(h_list[0]))
 
     def _load_idx(self, path, dim):
         if path.exists(): 
@@ -137,7 +137,7 @@ class MultimodalEngine:
 
                     if os.path.exists(out) and os.path.getsize(out) > 512:
                         with Image.open(out).convert("RGB") as img:
-                            hashes.append(str(imagehash.phash(img)))
+                            hashes.append(str(phash(img)))
                             images.append(img.copy())
 
             if not images: 
@@ -197,7 +197,7 @@ class MultimodalEngine:
                                     
                                 self.hash_db[filename] = hashes
                                 if hashes and len(hashes) > 0:
-                                    self.precomputed_hashes.append(imagehash.hex_to_hash(hashes[0]))
+                                    self.precomputed_hashes.append(hex_to_hash(hashes[0]))
                                     
                                 self.indexed_files.add(filename)
                                 with LOG_PATH.open('a', encoding='utf-8', errors='replace') as log: 
@@ -271,7 +271,7 @@ class MultimodalEngine:
 
                     is_duplicate = False
                     if hashes and len(hashes) > 0:
-                        t_hash = imagehash.hex_to_hash(hashes[0])
+                        t_hash = hex_to_hash(hashes[0])
                         for p_hash in self.precomputed_hashes:
                             if t_hash - p_hash <= 2:
                                 is_duplicate = True; break
