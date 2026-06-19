@@ -47,23 +47,23 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         cd dist
-        Compress-Archive -Path VectorSort -DestinationPath VectorSort-${{ matrix.os }}.zip
+        7z a -v1500m VectorSort-${{ matrix.os }}.zip VectorSort
 
     - name: Archive Build (Linux)
       if: runner.os == 'Linux'
       run: |
         cd dist
-        zip -r VectorSort-${{ matrix.os }}.zip VectorSort
+        zip -s 1500m -r VectorSort-${{ matrix.os }}.zip VectorSort
 
     - name: Archive Build (macOS)
       if: runner.os == 'macOS'
       run: |
         cd dist
-        zip -r VectorSort-macOS.zip VectorSort.app
+        zip -s 1500m -r VectorSort-macOS.zip VectorSort.app
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/VectorSort-*.zip
+        files: dist/VectorSort-*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
