@@ -10,6 +10,8 @@ jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -41,8 +43,14 @@ jobs:
       run: |
         pyinstaller vectorsort.spec
 
-    - name: Archive Build (Windows/Linux)
-      if: runner.os != 'macOS'
+    - name: Archive Build (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        cd dist
+        Compress-Archive -Path VectorSort -DestinationPath VectorSort-${{ matrix.os }}.zip
+
+    - name: Archive Build (Linux)
+      if: runner.os == 'Linux'
       run: |
         cd dist
         zip -r VectorSort-${{ matrix.os }}.zip VectorSort
