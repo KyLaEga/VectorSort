@@ -1,0 +1,12 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+dist/
+build/
+*.spec
+assets/models/
+*.faiss
+*.npy

@@ -1,0 +1,115 @@
+class Translator:
+    _lang = "ru"
+
+    _STRINGS = {
+        "en": {
+            "app_title": "Multimodal NSFW Filter",
+            "dropzone_title": "Drag & Drop media folder here",
+            "dropzone_sub": "or browse manually",
+            "btn_browse": "Browse Folder",
+            "loading_title": "Initializing neural networks...",
+            "loading_sub": "This may take a few seconds",
+            "loading_error": "Engine initialization failed",
+            "loading_error_sub": "Check your settings and folder existence.",
+            "col_file": "File",
+            "col_status": "Status",
+            "col_reason": "Reason",
+            "settings_title": "Settings",
+            "settings_base_dir": "Base Directory (Reference / Trash):",
+            "settings_btn_change": "Change",
+            "settings_sync_title": "FAISS Matrix Synchronization:",
+            "settings_sync_desc": "Recalculation is only needed when adding/removing files from Reference/Trash folders.",
+            "settings_btn_sync": "Synchronize Matrices",
+            "settings_btn_open_ref": "Open Reference",
+            "settings_btn_open_trash": "Open Trash",
+            "settings_btn_close": "Close",
+            "settings_wait_init": "Wait for engine init...",
+            "settings_theme": "Theme:",
+            "settings_lang": "Language:",
+            "theme_dark": "Dark",
+            "theme_light": "Light",
+            "theme_system": "System",
+            "lang_ru": "Русский",
+            "lang_en": "English",
+            "msg_first_run_title": "First Run",
+            "msg_first_run_text": "Base directory (with Reference and Trash matrices) not found.\n\nDo you want to select or create one now?",
+            "msg_choose_base": "Select folder to create databases",
+            "msg_setup_done_title": "Setup Complete",
+            "msg_setup_done_text": "Folders Reference_Matrix and Trash_Matrix successfully created.\nYou can add video examples there, then click the gear icon and select 'Synchronize Matrices'.",
+            "msg_warning": "Warning",
+            "msg_no_base_warning": "Without a base folder, the program may not work correctly. You can configure it later via settings.",
+            "msg_restart_title": "Restart Required",
+            "msg_restart_text": "Please restart the application to apply changes.",
+            "msg_error": "Error",
+            "msg_drop_folder": "Please drop a folder, not a file.",
+            "msg_scan_done": "Scanning finished.",
+            "msg_sync_done": "Matrices successfully synchronized.",
+            "status_preparing": "Preparing...",
+            "status_scanning": "Scanning...",
+            "status_done": "Done.",
+            "status_reason_no_audio": "No Audio",
+            "status_reason_dup": "Duplicate",
+            "status_reason_tensor_fail": "Tensorize Fail"
+        },
+        "ru": {
+            "app_title": "Multimodal NSFW Filter",
+            "dropzone_title": "Перетащите папку с медиафайлами сюда",
+            "dropzone_sub": "или выберите вручную",
+            "btn_browse": "Выбрать папку",
+            "loading_title": "Инициализация нейросетей...",
+            "loading_sub": "Это может занять несколько секунд",
+            "loading_error": "Ошибка инициализации ядра",
+            "loading_error_sub": "Проверьте настройки и наличие папок.",
+            "col_file": "Файл",
+            "col_status": "Статус",
+            "col_reason": "Причина",
+            "settings_title": "Настройки",
+            "settings_base_dir": "Расположение баз (Reference / Trash):",
+            "settings_btn_change": "Изменить",
+            "settings_sync_title": "Синхронизация матриц FAISS:",
+            "settings_sync_desc": "Пересчет матриц требуется только при добавлении или удалении файлов из папок Reference/Trash.",
+            "settings_btn_sync": "Синхронизировать матрицы",
+            "settings_btn_open_ref": "Открыть Reference",
+            "settings_btn_open_trash": "Открыть Trash",
+            "settings_btn_close": "Закрыть",
+            "settings_wait_init": "Дождитесь инициализации...",
+            "settings_theme": "Тема оформления:",
+            "settings_lang": "Язык (Language):",
+            "theme_dark": "Темная (Dark)",
+            "theme_light": "Светлая (Light)",
+            "theme_system": "Системная (System)",
+            "lang_ru": "Русский",
+            "lang_en": "English",
+            "msg_first_run_title": "Первый запуск",
+            "msg_first_run_text": "Базовая папка для работы (с матрицами Reference и Trash) не найдена.\n\nХотите выбрать или создать её сейчас?",
+            "msg_choose_base": "Выберите папку для создания баз данных",
+            "msg_setup_done_title": "Настройка завершена",
+            "msg_setup_done_text": "Папки Reference_Matrix и Trash_Matrix успешно созданы.\nВы можете добавить в них примеры видео, а затем нажать на шестеренку и выбрать 'Синхронизировать матрицы'.",
+            "msg_warning": "Внимание",
+            "msg_no_base_warning": "Без базовой папки программа может работать некорректно. Вы можете настроить её позже, нажав на шестеренку.",
+            "msg_restart_title": "Требуется перезапуск",
+            "msg_restart_text": "Для применения изменений необходимо перезапустить программу.",
+            "msg_error": "Ошибка",
+            "msg_drop_folder": "Пожалуйста, перетащите папку, а не отдельный файл.",
+            "msg_scan_done": "Сканирование завершено.",
+            "msg_sync_done": "Матрицы успешно синхронизированы.",
+            "status_preparing": "Подготовка...",
+            "status_scanning": "Сканирование...",
+            "status_done": "Готово.",
+            "status_reason_no_audio": "Нет аудиодорожки",
+            "status_reason_dup": "Повтор в базе",
+            "status_reason_tensor_fail": "Сбой тензоризации"
+        }
+    }
+
+    @classmethod
+    def set_language(cls, lang_code: str):
+        if lang_code in cls._STRINGS:
+            cls._lang = lang_code
+
+    @classmethod
+    def get(cls, key: str) -> str:
+        return cls._STRINGS.get(cls._lang, {}).get(key, key)
+
+def tr(key: str) -> str:
+    return Translator.get(key)
