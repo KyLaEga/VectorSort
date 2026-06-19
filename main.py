@@ -1,5 +1,6 @@
 import sys
 import os
+import multiprocessing
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QSettings, QCoreApplication
 from gui.main_window import MainWindow
@@ -8,6 +9,7 @@ from gui.translations import Translator
 
 def main():
     if hasattr(sys, 'frozen'):
+        multiprocessing.freeze_support()
         os.environ['QT_ENABLE_HIGHDPI_SCALING'] = '1'
         
     QCoreApplication.setOrganizationName("KyLaEga")
