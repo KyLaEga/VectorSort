@@ -1,9 +1,9 @@
 import os
 import sys
-import wave
+import io
+import gc
 import shutil
 import subprocess
-import tempfile
 from core.hash_utils import hex_to_hash, phash
 import uuid
 import numpy as np
@@ -162,36 +162,52 @@ class MultimodalEngine:
             if dur < 2.0: 
                 return video_path, None, None, None, "SHORT"
 
-            with tempfile.TemporaryDirectory() as tmp:
-                aud_ts = max(0, (dur / 2) - 1.0)
-                out_aud = os.path.join(tmp, "audio.wav")
-                cmd_aud = [FFMPEG_EXE, '-y', '-ss', str(aud_ts), '-i', str(video_path), '-t', '2', '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', out_aud]
-                subprocess.run(cmd_aud, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
+            # 1. Извлекаем аудио напрямую в ОЗУ через PIPE
+            aud_ts = max(0, (dur / 2) - 1.0)
+            cmd_aud = [
+                FFMPEG_EXE, '-ss', str(aud_ts), '-i', str(video_path), 
+                '-t', '2', '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', 
+                '-ac', '1', '-f', 's16le', '-'
+            ]
+            proc_aud = subprocess.run(cmd_aud, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
+            if proc_aud.returncode == 0 and len(proc_aud.stdout) >= 32000:
+                audio_waveform = np.frombuffer(proc_aud.stdout, dtype=np.int16).astype(np.float32) / 32768.0
+
+            is_sync_phase = "Reference_Matrix" in str(video_path) or "Trash_Matrix" in str(video_path)
+            if not is_sync_phase and audio_waveform is None:
+                return video_path, None, None, None, "NO_AUDIO"
+
+            # 2. Извлекаем кадры напрямую в ОЗУ в формате MJPEG
+            timestamps = [dur * i for i in [0.2, 0.35, 0.5, 0.65, 0.8]]
+            hw_flags = self._get_ffmpeg_hw_flags()
+            
+            for ts in timestamps:
+                cmd_hw = [
+                    FFMPEG_EXE, '-y'
+                ] + hw_flags + [
+                    '-ss', str(ts), '-i', str(video_path), 
+                    '-vframes', '1', '-vf', 'scale=224:224', 
+                    '-f', 'image2', '-vcodec', 'mjpeg', '-'
+                ]
+                proc_img = subprocess.run(cmd_hw, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
                 
-                if os.path.exists(out_aud) and os.path.getsize(out_aud) > 1000:
-                    with wave.open(out_aud, 'rb') as wf:
-                        frames = wf.readframes(wf.getnframes())
-                        audio_waveform = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
-
-                is_sync_phase = "Reference_Matrix" in str(video_path) or "Trash_Matrix" in str(video_path)
-                if not is_sync_phase and audio_waveform is None:
-                    return video_path, None, None, None, "NO_AUDIO"
-
-                timestamps = [dur * i for i in [0.2, 0.35, 0.5, 0.65, 0.8]]
-                hw_flags = self._get_ffmpeg_hw_flags()
+                if proc_img.returncode != 0 or len(proc_img.stdout) < 512:
+                    cmd_sw = [
+                        FFMPEG_EXE, '-y', 
+                        '-ss', str(ts), '-i', str(video_path), 
+                        '-vframes', '1', '-vf', 'scale=224:224', 
+                        '-f', 'image2', '-vcodec', 'mjpeg', '-'
+                    ]
+                    proc_img = subprocess.run(cmd_sw, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
                 
-                for i, ts in enumerate(timestamps):
-                    out = os.path.join(tmp, f"v_{i}.jpg")
-                    cmd_hw = [FFMPEG_EXE, '-y'] + hw_flags + ['-ss', str(ts), '-i', str(video_path), '-vframes', '1', '-vf', 'scale=224:224', '-q:v', '2', out]
-                    
-                    if not hw_flags or subprocess.run(cmd_hw, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15).returncode != 0:
-                        cmd_sw = [FFMPEG_EXE, '-y', '-ss', str(ts), '-i', str(video_path), '-vframes', '1', '-vf', 'scale=224:224', out]
-                        subprocess.run(cmd_sw, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
-
-                    if os.path.exists(out) and os.path.getsize(out) > 512:
-                        with Image.open(out).convert("RGB") as img:
+                if proc_img.returncode == 0 and len(proc_img.stdout) >= 512:
+                    try:
+                        with Image.open(io.BytesIO(proc_img.stdout)) as img_raw:
+                            img = img_raw.convert("RGB")
                             hashes.append(str(phash(img)))
                             images.append(img.copy())
+                    except Exception:
+                        pass
 
             if not images: 
                 return video_path, None, None, None, "DECODE_FAIL"
@@ -274,6 +290,12 @@ class MultimodalEngine:
                         else:
                             self.log_cb(f" [-] Ошибка синхронизации {filename}: {status}")
                         
+                        # Освобождение ресурсов во избежание утечек памяти
+                        del images, waveform
+                        if 'v_vecs' in locals(): del v_vecs
+                        if 'a_vec' in locals(): del a_vec
+                        gc.collect()
+
                         processed += 1
                         self.prog_cb(int((processed / total_files) * 100), f"Синхронизация: {processed}/{total_files}")
 
@@ -392,6 +414,12 @@ class MultimodalEngine:
                         self.log_cb(f"[{filename}] -> REJECTED (Low Match{aud_log})")
                         self.result_cb(filename, "REJECTED", "Low Match")
                         self._safe_move(v_path, target / "Rejected", filename)
+
+                    # Освобождение ресурсов во избежание утечек памяти
+                    del images, waveform
+                    if 'v_vecs' in locals(): del v_vecs
+                    if 'a_vec' in locals(): del a_vec
+                    gc.collect()
 
                     processed += 1
                     self.prog_cb(int((processed / len(files)) * 100), f"Анализ: {processed}/{len(files)}")
